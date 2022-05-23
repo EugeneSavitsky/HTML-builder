@@ -5,15 +5,20 @@ const from = path.join(__dirname, 'files');
 const to = path.join(__dirname, 'files-copy');
 copyDir(from, to);
 
-async function copyDir(origin, copy) {
+async function copyDir(sourceDir, targetDir) {
   
   try {
-    await rm(copy, {recursive: true, force: true});
-    await mkdir(copy, { recursive: true });
-    const files = await readdir(origin , {withFileTypes: true});
-    
+    await rm(targetDir, {recursive: true, force: true});
+    await mkdir(targetDir, { recursive: true });
+    const files = await readdir(sourceDir , {withFileTypes: true});
+      
     files.forEach(file => {
-      copyFile(path.join(origin, file.name), path.join(copy, file.name));
+      if(file.isDirectory()) {
+        copyDir(path.join(sourceDir, file.name), path.join(targetDir, file.name));
+      } else {
+        copyFile(path.join(sourceDir, file.name), path.join(targetDir, file.name));
+        console.log(`File: ${file.name} copied whith no error's`);
+      }
     });
 
   } catch (err) {
